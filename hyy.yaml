@@ -1,0 +1,21 @@
+proxies:
+  - name: "My Shadowsocks Server"
+    type: ss
+    server:  111.119.218.103 # 你的服务器公网IP
+    port:  8388              # Shadowsocks监听的端口
+    cipher: chacha20-ietf-poly1305
+    password: "050822"       # Shadowsocks的密码
+    udp: true
+
+proxy-groups:
+  - name: "Proxy"
+    type: select
+    proxies:
+      - "My Shadowsocks Server"
+
+rules:
+  - DOMAIN-SUFFIX,google.com,Proxy
+  - DOMAIN-SUFFIX,youtube.com,Proxy
+  - DOMAIN-SUFFIX,facebook.com,Proxy
+  - GEOIP,CN,DIRECT
+  - MATCH,Proxy
