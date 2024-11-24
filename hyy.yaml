@@ -1,8 +1,8 @@
 proxies:
   - name: "My Shadowsocks Server"
     type: ss
-    server:  111.119.218.103 # 你的服务器公网IP
-    port:  8388              # Shadowsocks监听的端口
+    server: 111.119.218.103 # 你的服务器公网IP
+    port: 8388              # Shadowsocks监听的端口
     cipher: chacha20-ietf-poly1305
     password: "050822"       # Shadowsocks的密码
     udp: true
