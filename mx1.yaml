@@ -8,6 +8,10 @@ proxies:
     password: "041116"      # 密码
     udp: true               # 支持 UDP
     reuse-port: true        # 端口复用
+    plugin: obfs
+    plugin-opts:
+      mode: tls
+
 
 # 代理分组
 proxy-groups:
