@@ -6,6 +6,8 @@ proxies:
     cipher: chacha20-ietf-poly1305
     password: "041116"       # Shadowsocks的密码
     udp: true
+    "reuse_port": true
+
 
 proxy-groups:
   - name: "Proxy"
