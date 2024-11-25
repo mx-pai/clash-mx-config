@@ -1,0 +1,36 @@
+# Shadowsocks 配置
+proxies:
+  - name: "My Shadowsocks Server"
+    type: ss
+    server: 124.243.136.40  # 服务端 IP
+    port: 7897              # 服务端端口
+    cipher: chacha20-ietf-poly1305
+    password: "041116"      # 密码
+    udp: true               # 支持 UDP
+    reuse-port: true        # 端口复用
+
+# 代理分组
+proxy-groups:
+  - name: "Proxy"
+    type: select
+    proxies:
+      - "My Shadowsocks Server"
+      - DIRECT
+
+# 规则列表
+rules:
+  - DOMAIN-SUFFIX,google.com,Proxy
+  - DOMAIN-SUFFIX,youtube.com,Proxy
+  - DOMAIN-SUFFIX,facebook.com,Proxy
+  - GEOIP,CN,DIRECT
+  - MATCH,Proxy
+
+# DNS 配置
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  nameserver:
+    - 8.8.8.8
+    - 1.1.1.1
+  fallback:
+    - 114.114.114.114
