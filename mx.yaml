@@ -1,22 +1,149 @@
+# proxies:
+#   - name: "My Shadowsocks Server"
+#     type: ss
+#     server: 124.243.136.40   # 服务器公网 IP
+#     port: 8388               # 监听的端口
+#     cipher: chacha20-ietf-poly1305
+#     password: "041116"       # Shadowsocks 密码
+#     udp: true                # 是否支持 UDP
+
+# proxy-groups:
+#   - name: "Proxy"
+#     type: select
+#     proxies:
+#       - "My Shadowsocks Server"
+#       - DIRECT              # 添加直连选项以防配置错误时切换
+
+# rules:
+#   - DOMAIN-SUFFIX,google.com,Proxy
+#   - DOMAIN-SUFFIX,youtube.com,Proxy
+#   - DOMAIN-SUFFIX,facebook.com,Proxy
+#   - GEOIP,CN,DIRECT
+#   - MATCH,Proxy
+
+
+port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+unified-delay: true
+global-client-fingerprint: chrome
+dns:
+  enable: true
+  listen: :53
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 8.8.8.8
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://1.0.0.1/dns-query
+    - tls://dns.google
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+
 proxies:
-  - name: "My Shadowsocks Server"
-    type: ss
-    server: 124.243.136.40   # 服务器公网 IP
-    port: 8388               # 监听的端口
-    cipher: chacha20-ietf-poly1305
-    password: "041116"       # Shadowsocks 密码
-    udp: true                # 是否支持 UDP
+- name: vless-reality-vision-hcss-ecs-6c66
+  type: vless
+  server: 124.243.136.40
+  port: 19573
+  uuid: 172c951e-4697-427d-8625-16421d69580b
+  network: tcp
+  udp: true
+  tls: true
+  flow: xtls-rprx-vision
+  servername: www.yahoo.com
+  reality-opts:
+    public-key: FUq-L8v8t6UElGgy4FmxG0NBZWEcX59W_coMoM3bxlg
+    short-id: 2c5e2fe8
+  client-fingerprint: chrome
+
+- name: vmess-ws-hcss-ecs-6c66
+  type: vmess
+  server: 124.243.136.40
+  port: 2095
+  uuid: 172c951e-4697-427d-8625-16421d69580b
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  network: ws
+  servername: www.bing.com
+  ws-opts:
+    path: "172c951e-4697-427d-8625-16421d69580b-vm"
+    headers:
+      Host: www.bing.com
+
+
+
+
+
+- name: hysteria2-hcss-ecs-6c66
+  type: hysteria2
+  server: 124.243.136.40
+  port: 20172
+  password: 172c951e-4697-427d-8625-16421d69580b
+  alpn:
+    - h3
+  sni: www.bing.com
+  skip-cert-verify: true
+  fast-open: true
+
+- name: tuic5-hcss-ecs-6c66
+  server: 124.243.136.40
+  port: 25392
+  type: tuic
+  uuid: 172c951e-4697-427d-8625-16421d69580b
+  password: 172c951e-4697-427d-8625-16421d69580b
+  alpn: [h3]
+  disable-sni: true
+  reduce-rtt: true
+  udp-relay-mode: native
+  congestion-controller: bbr
+  sni: www.bing.com
+  skip-cert-verify: true
 
 proxy-groups:
-  - name: "Proxy"
-    type: select
-    proxies:
-      - "My Shadowsocks Server"
-      - DIRECT              # 添加直连选项以防配置错误时切换
+- name: 负载均衡
+  type: load-balance
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  strategy: round-robin
+  proxies:
+    - vless-reality-vision-hcss-ecs-6c66
+    - vmess-ws-hcss-ecs-6c66
+    - hysteria2-hcss-ecs-6c66
+    - tuic5-hcss-ecs-6c66
 
+- name: 自动选择
+  type: url-test
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 50
+  proxies:
+    - vless-reality-vision-hcss-ecs-6c66
+    - vmess-ws-hcss-ecs-6c66
+    - hysteria2-hcss-ecs-6c66
+    - tuic5-hcss-ecs-6c66
+
+- name: 🌍选择代理节点
+  type: select
+  proxies:
+    - 负载均衡
+    - 自动选择
+    - DIRECT
+    - vless-reality-vision-hcss-ecs-6c66
+    - vmess-ws-hcss-ecs-6c66
+    - hysteria2-hcss-ecs-6c66
+    - tuic5-hcss-ecs-6c66
 rules:
-  - DOMAIN-SUFFIX,google.com,Proxy
-  - DOMAIN-SUFFIX,youtube.com,Proxy
-  - DOMAIN-SUFFIX,facebook.com,Proxy
+  - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
-  - MATCH,Proxy
+  - MATCH,🌍选择代理节点
